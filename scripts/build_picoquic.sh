@@ -108,6 +108,12 @@ if [[ -z "${IS_WINDOWS}" ]] && command -v ninja &>/dev/null && [[ -z "${CMAKE_GE
   CMAKE_ARGS+=("-G" "Ninja")
 fi
 
+# Remap build-machine paths from __FILE__ strings in C assert macros so the
+# developer's home directory is not baked into the compiled static libraries.
+if [[ -z "${IS_WINDOWS}" ]]; then
+  CMAKE_ARGS+=("-DCMAKE_C_FLAGS=-ffile-prefix-map=${HOME}=~")
+fi
+
 cmake -S "${PICOQUIC_DIR}" -B "${BUILD_DIR}" "${CMAKE_ARGS[@]}"
 if [[ ${#BUILD_TARGET[@]} -gt 0 ]]; then
   cmake --build "${BUILD_DIR}" --config "${BUILD_TYPE}" "${BUILD_TARGET[@]}"
